@@ -1,5 +1,5 @@
 import math
-import shapely
+import shapely.geometry
 
 class Tile:
     def __init__(self, zoom, x, y):
