@@ -79,7 +79,7 @@ app.layout = ddk.App([
 
 print (relpath('/tile/<tile_hash>/<zoom>/<y>/<x>'))
 
-@server.route(relpath('/tile/<tile_hash>/<zoom>/<y>/<x>'))
+@server.route(relpath('/wmts/tile/<tile_hash>/<zoom>/<y>/<x>'))
 def tile(tile_hash, zoom, y, x):
     tile = Tile(zoom, x, y)
     tile_config = redis_instance.hget("tile", tile_hash)
