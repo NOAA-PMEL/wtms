@@ -77,11 +77,13 @@ app.layout = ddk.App([
     ])
 ])
 
+print(relpath('/tile/<tile_hash>/<zoom>/<y>/<x>'))
+
 @server.route(relpath('/tile/<tile_hash>/<zoom>/<y>/<x>'))
 def tile(tile_hash, zoom, y, x):
     tile = Tile(zoom, x, y)
-    tile_config = redis_instance.hget("tile", tile_hash)
-    img_file = make_image(tile, tile_config.url, tile_config.variable, tile_config.min, tile_config.max)
+    tile_config = json.loads(redis_instance.hget("tile", tile_hash))
+    img_file = make_image(tile, tile_config['url'], tile_config['variable'], tile_config['min'], tile_config['max'])
     return send_file(
         'assets/' + img_file
     )
