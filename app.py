@@ -77,8 +77,8 @@ app.layout = ddk.App([
     ])
 ])
 
-print(relpath('/tile/<tile_hash>/<zoom>/<y>/<x>'))
-
+print('relpath output' + relpath('/tile/<tile_hash>/<zoom>/<y>/<x>'))
+print('app.get_relative_path of /' + app.get_relative_path('/'))
 @server.route(relpath('/tile/<tile_hash>/<zoom>/<y>/<x>'))
 def tile(tile_hash, zoom, y, x):
     tile = Tile(zoom, x, y)
