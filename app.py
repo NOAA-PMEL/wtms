@@ -21,7 +21,7 @@ def relpath(path):
     if 'Workspaces' in app.get_relative_path('/'):
         return "/Workspaces/view/{}{}".format(os.environ["DASH_APP_NAME"], path)
     else:
-        return "/{}{}".format(os.environ["DASH_APP_NAME"], path)
+        return path
 
 app.layout = ddk.App([
     ddk.Header([
@@ -77,8 +77,8 @@ app.layout = ddk.App([
     ])
 ])
 
-print('relpath output' + relpath('/tile/<tile_hash>/<zoom>/<y>/<x>'))
-print('app.get_relative_path of /' + app.get_relative_path('/'))
+print('relpath output: ' + relpath('/tile/<tile_hash>/<zoom>/<y>/<x>'))
+print('app.get_relative_path of /: ' + app.get_relative_path('/'))
 @server.route(relpath('/tile/<tile_hash>/<zoom>/<y>/<x>'))
 def tile(tile_hash, zoom, y, x):
     tile = Tile(zoom, x, y)
