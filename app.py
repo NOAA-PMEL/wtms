@@ -251,8 +251,8 @@ def save_tile_map(save_click, save_url, save_variable, save_min, save_max):
         'min': save_min,
         'max': save_max
         }
-    internal_url = 'https://dash.pmel.noaa.gov/wmts/tile/' + hash_key + '/' + save_variable + '/{zoom}{y}{x}.png'
-    external_url = 'https://viz.pmel.noaa.gov/wmts/tile/' + hash_key + '/' + save_variable + '/{zoom}{y}{x}.png'
+    internal_url = 'https://dash.pmel.noaa.gov/wmts/tile/' + hash_key + '/' + save_variable + '/{z}{y}{x}'
+    external_url = 'https://viz.pmel.noaa.gov/wmts/tile/' + hash_key + '/' + save_variable + '/{z}{y}{x}'
     redis_instance.hset("tile", hash_key, json.dumps(tile_config))
     return 'File config saved. See below', internal_url, external_url
 
