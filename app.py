@@ -21,7 +21,7 @@ def relpath(path):
     if 'Workspaces' in app.get_relative_path('/'):
         return "/Workspaces/view/{}{}".format(os.environ["DASH_APP_NAME"], path)
     else:
-        return "{}{}".format(os.environ["DASH_APP_NAME"], path)
+        return "/{}{}".format(os.environ["DASH_APP_NAME"], path)
 
 app.layout = ddk.App([
     ddk.Header([
