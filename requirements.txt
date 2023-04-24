@@ -6,4 +6,5 @@ redis
 shapely
 pyproj
 kaleido
+mercantile
 git+https://github.com/noaaroland/sdig.git

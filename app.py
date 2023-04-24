@@ -2,7 +2,7 @@ from dash import Dash, dcc, html, Input, Output, State, exceptions
 import dash_design_kit as ddk
 import plotly.express as px
 from sdig.erddap.info import Info
-from tile import Tile
+import mercantile
 import pandas as pd
 import os
 from flask import send_file
@@ -77,13 +77,11 @@ app.layout = ddk.App([
     ])
 ])
 
-print('relpath output: ' + relpath('/tile/<tile_hash>/<zoom>/<y>/<x>'))
-print('app.get_relative_path of /: ' + app.get_relative_path('/'))
 @server.route(relpath('/tile/<tile_hash>/<zoom>/<y>/<x>'))
 def tile(tile_hash, zoom, y, x):
-    tile = Tile(zoom, x, y)
+    tile_bounts = mercantile.bounds(x, y, zoom)
     tile_config = json.loads(redis_instance.hget("tile", tile_hash))
-    img_file = make_image(tile, tile_config['url'], tile_config['variable'], tile_config['min'], tile_config['max'])
+    img_file = make_image(tile, tile_config['url'], tile_config['variable'], tile_config['min'], tile_config['max'], x, y, zoom)
     return send_file(
         'assets/' + img_file
     )
@@ -158,21 +156,21 @@ def make_previews(click, state_url, state_variable, state_min, state_max):
     if not state_url or not state_variable or not state_min or not state_max:
         raise exceptions.PreventUpdate
 
-    tile1 = Tile(2,2,2)
-    img_file1 = make_image(tile1, state_url, state_variable, state_min, state_max)
-    tile2 = Tile(4,4,4)
-    img_file2 = make_image(tile2, state_url, state_variable, state_min, state_max)
+    tile1_bounds = mercantile.bounds(2,2,2)
+    img_file1 = make_image(tile1_bounds, state_url, state_variable, state_min, state_max, 2, 2, 2)
+    tile2_bounds = mercantile.bounds(4,4,4)
+    img_file2 = make_image(tile2_bounds, state_url, state_variable, state_min, state_max, 4, 4, 4)
     print(img_file2)
     return [app.get_asset_url(img_file1), app.get_asset_url(img_file2)]
 
 
 
-def make_image(my_tile, my_url, my_variable, my_min, my_max):
+def make_image(my_tile, my_url, my_variable, my_min, my_max, x, y, z):
     local_info = Info(my_url)
     s = local_info.url+my_variable+str(my_min)+str(my_max)
     hash_key = hashlib.sha1(s.encode("utf-8")).hexdigest()
-    lon_con = '&longitude>=' + str(my_tile.box.exterior.coords[3][0]) + '&longitude<=' + str(my_tile.box.exterior.coords[0][0])
-    lat_con = '&latitude>=' + str(my_tile.box.exterior.coords[0][1]) + '&latitude<=' + str(my_tile.box.exterior.coords[1][1])
+    lon_con = '&longitude>=' + str(my_tile.west) + '&longitude<=' + str(my_tile.east)
+    lat_con = '&latitude>=' + str(my_tile.south) + '&latitude<=' + str(my_tile.north)
     url = (
             local_info.url +
             '.csv?latitude,longitude,expocode,' + my_variable +
@@ -182,8 +180,8 @@ def make_image(my_tile, my_url, my_variable, my_min, my_max):
 
     assets_dir = 'assets'
     base_dir = 'tiles/' + hash_key
-    tile_dir = str(my_tile.zoom) + '/' + str(my_tile.x)
-    tile_name = str(my_tile.y) + '.png'
+    tile_dir = str(z) + '/' + str(x)
+    tile_name = str(y) + '.png'
     full_tile = assets_dir + '/' + base_dir + '/' + tile_dir + '/' + tile_name
     assets_rel = base_dir + '/' + tile_dir + '/' + tile_name
     if os.path.isfile(full_tile):
@@ -253,8 +251,8 @@ def save_tile_map(save_click, save_url, save_variable, save_min, save_max):
         'min': save_min,
         'max': save_max
         }
-    internal_url = 'https://dash.pmel.noaa.gov/wmts/tile/' + hash_key + '/' + save_variable + '/{z}/{y}/{x}'
-    external_url = 'https://viz.pmel.noaa.gov/wmts/tile/' + hash_key + '/' + save_variable + '/{z}/{y}/{x}'
+    internal_url = 'https://dash.pmel.noaa.gov/wmts/tile/' + hash_key + '/{z}/{y}/{x}'
+    external_url = 'https://viz.pmel.noaa.gov/wmts/tile/' + hash_key + '/{z}/{y}/{x}'
     redis_instance.hset("tile", hash_key, json.dumps(tile_config))
     return 'File config saved. See below', internal_url, external_url
 
