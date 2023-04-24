@@ -79,6 +79,7 @@ app.layout = ddk.App([
 
 @server.route(relpath('/tile/<tile_hash>/<zoom>/<y>/<x>'))
 def tile(tile_hash, zoom, y, x):
+    zoom = int(zoom)
     tile_bounts = mercantile.bounds(x, y, zoom)
     tile_config = json.loads(redis_instance.hget("tile", tile_hash))
     img_file = make_image(tile, tile_config['url'], tile_config['variable'], tile_config['min'], tile_config['max'], x, y, zoom)
