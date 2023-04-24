@@ -82,9 +82,9 @@ def tile(tile_hash, zoom, y, x):
     zoom = int(zoom)
     x = int(x)
     y = int(y)
-    tile_bounts = mercantile.bounds(x, y, zoom)
+    tile_bounds = mercantile.bounds(x, y, zoom)
     tile_config = json.loads(redis_instance.hget("tile", tile_hash))
-    img_file = make_image(tile, tile_config['url'], tile_config['variable'], tile_config['min'], tile_config['max'], x, y, zoom)
+    img_file = make_image(tile_bounds, tile_config['url'], tile_config['variable'], tile_config['min'], tile_config['max'], x, y, zoom)
     return send_file(
         'assets/' + img_file
     )
