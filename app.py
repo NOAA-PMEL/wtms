@@ -11,6 +11,8 @@ import urllib
 import redis
 import json
 from pyproj import Transformer
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 redis_instance = redis.StrictRedis.from_url(os.environ.get("REDIS_URL", "redis://127.0.0.1:6379"))
 
@@ -101,12 +103,17 @@ def define_variables(in_url):
     if in_url is None or len(in_url) == 0:
         raise exceptions.PreventUpdate
     try:
+        print('running with ' + in_url)
         myinfo = Info(in_url)
+        print('made info')
         dsg_type = myinfo.get_dsg_type()
+        print(dsg_type)
         if dsg_type != 'points' and dsg_type != 'trajectory':
             return options, 'I do not know how to make a map of the selected data type of ' + dsg_type
         else:
+            print('ready get vars')
             ds_vars, long_names, units, std_names = myinfo.get_variables()
+            print(ds_vars)
             for v in ds_vars:
                 if v in long_names:
                     long_n = long_names[v]
